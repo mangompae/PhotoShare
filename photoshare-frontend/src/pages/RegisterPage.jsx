@@ -9,6 +9,7 @@ export default function RegisterPage() {
           <input className="border px-4 py-2 rounded" placeholder="Nombre de usuario" />
           <input type="email" className="border px-4 py-2 rounded" placeholder="Correo electrónico" />
           <input type="password" className="border px-4 py-2 rounded" placeholder="Contraseña" />
+          <input type="password" className="border px-4 py-2 rounded" placeholder="Confirmar Contraseña" />
           <button className="bg-green-600 text-white py-2 rounded hover:bg-green-700">Registrarse</button>
         </form>
       </div>
