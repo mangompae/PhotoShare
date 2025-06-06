@@ -1,61 +1,59 @@
-version: '3.8'
-
 services:
-  # Base de datos
   db:
-    image: mysql:8.0
-    ports:
-      - "3310:3306"
+    image: mysql:8
+    container_name: photoshare-mysql
     environment:
-      - MYSQL_ROOT_PASSWORD=password
-      - MYSQL_DATABASE=photoshare
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: photoshare
+      MYSQL_USER: photoshare
+      MYSQL_PASSWORD: photoshare
+    ports:
+      - "3306:3306"
     volumes:
-      - mysql-data:/var/lib/mysql
-      - ./PhotoShare.sql:/docker-entrypoint-initdb.d/PhotoShare.sql
-    networks:
-      - photoshare-network
+      - db_data:/var/lib/mysql
+      - ./photoshare-backend/PhotoShare.sql:/docker-entrypoint-initdb.d/PhotoShare.sql:ro
+    restart: always
 
-  # Backend
   backend:
     build:
-      context: ./backend
+      context: ./photoshare-backend
       dockerfile: backend.Dockerfile
+    container_name: photoshare-backend
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/photoshare?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      SPRING_DATASOURCE_USERNAME: photoshare
+      SPRING_DATASOURCE_PASSWORD: photoshare
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      SPRING_JPA_SHOW_SQL: "true"
     ports:
       - "8080:8080"
     depends_on:
       - db
-    environment:
-      - SPRING_DATASOURCE_URL=jdbc:mysql://db:3306/photoshare?useSSL=false&allowPublicKeyRetrieval=true
-      - SPRING_DATASOURCE_USERNAME=root
-      - SPRING_DATASOURCE_PASSWORD=password
-      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
-      - FILE_UPLOAD_DIR=/app/uploads
-      - JWT_SECRET=mySuperSecretKey123!456@789#
-      - JWT_EXPIRATION=86400000
-    volumes:
-      - photo-uploads:/app/uploads
-    networks:
-      - photoshare-network
+    restart: always
 
-  # Frontend
   frontend:
     build:
-      context: ./
+      context: ./photoshare-frontend
       dockerfile: frontend.Dockerfile
+    container_name: photoshare-frontend
     ports:
       - "80:80"
     depends_on:
       - backend
+    restart: always
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: photoshare-phpmyadmin
     environment:
-      - VITE_API_URL=http://localhost/api
-    networks:
-      - photoshare-network
-
-
-networks:
-  photoshare-network:
-    driver: bridge
+      PMA_HOST: db
+      PMA_USER: photoshare
+      PMA_PASSWORD: photoshare
+    ports:
+      - "8081:80"
+    depends_on:
+      - db
+    restart: always
 
 volumes:
-  mysql-data:
-  photo-uploads:
+  db_data:
