@@ -6,7 +6,7 @@ export default function Header() {
     <header className="bg-white shadow fixed w-full top-0 left-0 z-50">
       <div className="container mx-auto flex items-center justify-between py-3 px-6">
         <Link to="/inicio" className="text-2xl font-bold text-blue-600 hover:text-blue-700">
-          📸 PhotoApp
+          📸 PhotoShare
         </Link>
         <nav className="flex gap-4 items-center">
           <NavLink
